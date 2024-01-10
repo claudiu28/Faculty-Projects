@@ -1,0 +1,7 @@
+1;Matematica;Adriana
+2;Fizica;Popescu
+3;Chimie;Ionescu
+4;Biologie;Popescu
+5;Informatica;Ionescu
+6;TIC;Ionescu
+7;Geografie;Popescu

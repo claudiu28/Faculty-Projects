@@ -1,0 +1,17 @@
+Cerinta: Alegeți o funcție din aplicație, la care complexitatea ca și timp nu este constantă, și analizați complexitatea.
+
+    def sorted_by_nota(self, discipline_id):
+        final = [] ; elemenetar
+        lista = self.repository.get_note_by_disciplina(Disciplina(discipline_id, None, None)) ; Complexitatea este liniara: O(n)
+
+        lista = self.sorting(lista, method="bubble", key=lambda x: x.getNotaValoare(), reverse=True) ; Complexitatea este liniara: O(n * n)
+
+        for element in lista: 0(n)
+            student_id = element.student_id() ; elementar
+            student = self.repo_student.find_student(Student(student_id, None)) ; Elementara
+            if student is not None: ; elementara
+                final.append(Data(discipline_id, student, element)) ; elementara
+        return final
+
+
+    Complexitatea totala este: O(n * n) + O(n) + O(n) + O(n) + O(n) = O(n * n)

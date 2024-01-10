@@ -1,0 +1,10 @@
+1,str.Cernei nr.10 Cluj-Napoca,50000,vanzare
+2,str.Castanilor nr.42 Cluj-Napoca,60000,vanzare
+3,str.Ciresilor nr.12 Cluj-Napoca,70000,vanzare
+4,str.Maresal nr.11 Cluj-Napoca,80000,inchiriere
+5,str.Muresului nr.10 Cluj-Napoca,90000,inchiriere
+6,str.Tomisului nr.10 Cluj-Napoca,100000,vanzare
+7,str.Traian nr.10 Cluj-Napoca,110000,vanzare
+8,str.Tudor nr.10 Cluj-Napoca,120000,inchiriere
+9,str.Turzii nr.10 Cluj-Napoca,130000,inchiriere
+10,str.Valea Mare nr.10 Cluj-Napoca,140000,vanzare
