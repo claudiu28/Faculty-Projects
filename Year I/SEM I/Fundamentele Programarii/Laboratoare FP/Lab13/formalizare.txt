@@ -1,0 +1,11 @@
+Rezolvare sub-secvente ordine-strict crescatoare:
+lista (elementele), n - lungime lista
+soluție candidat:
+x= (x[0], x[1],..., x[k]), x[i]∈(0,1,.. ,N − 1), ∀ i ∈(0,1,.. ,N − 1)
+
+condiție consistent -> lista:
+x = (x[0], x[1],..., x[k]), k <= n - 1, i,j = {0, 1, 2, ... k}
+e consistent dacă lista[x[i]] < lista[x[j]] pentru ∀ x[i] < x[j] si ∀ i < j
+
+condiție soluție:
+x = (x[0], x[1],..., x[k]) -> e soluţie dacă e consistent şi k <= N− 1
