@@ -1,0 +1,106 @@
+     1                                  ;16. Se da un fisier text. Sa se citeasca continutul fisierului, sa se contorizeze ;      numarul de litere 'y' si 'z' si sa se afiseze aceaste valori. Numele fisierului text ;    este definit in segmentul de date.
+     2                                  
+     3                                  bits 32
+     4                                  
+     5                                  global start
+     6                                  
+     7                                  extern fopen, fread, exit, printf, fclose
+     8                                  
+     9                                  import fread msvcrt.dll
+    10                                  import exit msvcrt.dll
+    11                                  import printf msvcrt.dll
+    12                                  import fclose msvcrt.dll
+    13                                  import fopen msvcrt.dll
+    14                                  
+    15                                  segment data use32 class = data
+    16                                      
+    17 00000000 7200                        mod_access db "r", 0
+    18 00000002 6E756D652E74787400          nume db "nume.txt", 0
+    19 0000000B 00                          contor db 0
+    20                                      lg equ 255
+    21 0000000C 256400                      format_lungime db "%d" , 0
+    22 0000000F 00<rept>                    text times 256 db 0
+    23 0000010F FFFFFFFF                    descriptor dd -1
+    24 00000113 00                          lungime db 0
+    25 00000114 00000000                    contor_y dd 0
+    26 00000118 00000000                    contor_z dd 0
+    27 0000011C 496E20746578742027-         format_print db "In text 'y' se afla de: %d ori, iar 'z' de: %d ori.", 0
+    27 00000125 79272073652061666C-
+    27 0000012E 612064653A20256420-
+    27 00000137 6F72692C2069617220-
+    27 00000140 277A272064653A2025-
+    27 00000149 64206F72692E00     
+    28                                  
+    29                                      segment code use32 class = code
+    30                                      start:
+    31 00000000 68[00000000]                    push dword mod_access
+    32 00000005 68[02000000]                    push dword nume
+    33 0000000A FF15[00000000]                  call [fopen]
+    34 00000010 83C408                          add esp, 4 * 2
+    35                                          
+    36 00000013 A3[0F010000]                    mov [descriptor], eax
+    37                                          
+    38 00000018 83F800                          cmp eax, 0
+    39 0000001B 747A                            je final
+    40                                          
+    41 0000001D FF35[0F010000]                  push dword [descriptor]
+    42 00000023 68FF000000                      push dword lg
+    43 00000028 6A01                            push dword 1
+    44 0000002A 68[0F000000]                    push dword text
+    45 0000002F FF15[00000000]                  call [fread]
+    46 00000035 83C410                          add esp, 4 * 4    
+    47                                          
+    48 00000038 A3[13010000]                    mov [lungime], eax     
+    49                                          
+    50 0000003D 8B0D[13010000]                  mov ecx, [lungime]
+    51 00000043 31D2                            xor edx, edx
+    52 00000045 31F6                            xor esi, esi
+    53 00000047 31FF                            xor edi, edi
+    54 00000049 FC                              cld
+    55                                          
+    56                                          bucla:
+    57 0000004A 8A9E[0F000000]                      mov bl, [text + esi]
+    58                                              
+    59 00000050 83F900                              cmp ecx, 0
+    60 00000053 741A                                je afisare
+    61                                              
+    62 00000055 80FB7A                              cmp bl, 'z'
+    63 00000058 7407                                je contor_numar_z
+    64                                              
+    65 0000005A 80FB79                              cmp bl, 'y'
+    66 0000005D 7407                                je contor_numar_y
+    67                                              
+    68 0000005F EB0A                                jmp urm_caracter
+    69                                          contor_numar_z:
+    70 00000061 83C201                              add edx, 1
+    71 00000064 EB05                                jmp urm_caracter
+    72                                              
+    73                                              
+    74                                          contor_numar_y:
+    75 00000066 83C701                              add edi, 1
+    76 00000069 EB00                                jmp urm_caracter
+    77                                          
+    78                                          urm_caracter:   
+    79 0000006B 46                                  inc esi 
+    80 0000006C 49                                  dec ecx
+    81 0000006D EBDB                                jmp bucla
+    82                                              
+    83                                          afisare:
+    84 0000006F 8915[18010000]                      mov [contor_z], edx
+    85 00000075 893D[14010000]                      mov [contor_y], edi
+    86                                              
+    87 0000007B FF35[18010000]                      push dword [contor_z]
+    88 00000081 FF35[14010000]                      push dword [contor_y]
+    89 00000087 68[1C010000]                        push dword format_print
+    90 0000008C FF15[00000000]                      call [printf]
+    91 00000092 83C40C                              add esp, 4 * 3
+    92                                              
+    93 00000095 EB00                                jmp final
+    94                                          
+    95                                      final:
+    96 00000097 FF35[0F010000]                  push dword [descriptor]
+    97 0000009D FF15[00000000]                  call [fclose]
+    98 000000A3 83C404                          add esp, 4 * 1
+    99                                          
+   100 000000A6 6A00                            push dword 0
+   101 000000A8 FF15[00000000]                  call [exit]

@@ -1,0 +1,95 @@
+     1                                  bits 32
+     2                                  global start
+     3                                  extern exit, fopen, fclose, fread, fprintf
+     4                                  
+     5                                  import exit msvcrt.dll
+     6                                  import fopen msvcrt.dll
+     7                                  import fclose msvcrt.dll
+     8                                  import fread msvcrt.dll
+     9                                  import fprintf msvcrt.dll
+    10                                  
+    11                                  
+    12                                  segment data use32 class = data
+    13                                      lg equ 101
+    14 00000000 00<rept>                    text times (lg + 1) db 0 
+    15 00000066 7200                        mod_access db "r", 0
+    16 00000068 7700                        mod_access_write db "w", 0
+    17 0000006A FFFFFFFF                    descriptor_r dd -1
+    18 0000006E FFFFFFFF                    descriptor_w dd -1
+    19 00000072 6F75747075742E7478-         output db "output.txt", 0
+    19 0000007B 7400               
+    20 0000007D 696E7075742E747874-         input db "input.txt", 0
+    20 00000086 00                 
+    21 00000087 256400                      format db "%d", 0
+    22 0000008A 256300                      format_s db "%c", 0
+    23                                  segment code use32 class = code
+    24                                  
+    25                                      start:
+    26 00000000 68[66000000]                    push dword mod_access
+    27 00000005 68[7D000000]                    push dword input
+    28 0000000A FF15[00000000]                  call [fopen]
+    29 00000010 83C408                          add esp, 4 * 2
+    30 00000013 A3[6A000000]                    mov [descriptor_r], eax
+    31                                          
+    32 00000018 83F800                          cmp eax, 0
+    33 0000001B 0F8488000000                    je final
+    34                                          
+    35 00000021 68[68000000]                    push dword mod_access_write
+    36 00000026 68[72000000]                    push dword output
+    37 0000002B FF15[00000000]                  call [fopen]
+    38 00000031 83C408                          add esp, 4 * 2
+    39                                          
+    40 00000034 A3[6E000000]                    mov [descriptor_w], eax
+    41                                          
+    42 00000039 83F800                          cmp eax, 0
+    43 0000003C 746B                            je final
+    44                                          
+    45 0000003E FF35[6A000000]                  push dword [descriptor_r]
+    46 00000044 6A65                            push dword lg
+    47 00000046 6A01                            push dword 1
+    48 00000048 68[00000000]                    push dword text
+    49 0000004D FF15[00000000]                  call [fread]
+    50 00000053 83C410                          add esp, 4 * 4
+    51 00000056 31F6                            xor esi,esi
+    52                                          bucla:
+    53 00000058 8A9E[00000000]                      mov bl, [text + esi]
+    54                                              
+    55 0000005E 80FB00                              cmp bl, 0
+    56 00000061 7446                                je final
+    57                                              
+    58 00000063 80FB61                              cmp bl, 'a'
+    59 00000066 7C24                                jl mai_departe
+    60                                              
+    61 00000068 80FB7A                              cmp bl, 'z'
+    62 0000006B 7F1F                                jg mai_departe
+    63                                              
+    64 0000006D 0FBE86[00000000]                    movsx eax, byte[text + esi]
+    65 00000074 50                                  push dword eax
+    66 00000075 68[87000000]                        push dword format
+    67 0000007A FF35[6E000000]                      push dword [descriptor_w]
+    68 00000080 FF15[00000000]                      call [fprintf]
+    69 00000086 83C40C                              add esp, 4 * 3
+    70                                              
+    71 00000089 46                                  inc esi
+    72 0000008A EBCC                                jmp bucla
+    73                                          mai_departe:
+    74 0000008C FFB6[00000000]                      push dword [text + esi]
+    75 00000092 68[8A000000]                        push dword format_s
+    76 00000097 FF35[6E000000]                      push dword [descriptor_w]
+    77 0000009D FF15[00000000]                      call [fprintf]
+    78 000000A3 83C408                              add esp, 4 * 2
+    79                                          
+    80 000000A6 46                                  inc esi
+    81 000000A7 EBAF                                jmp bucla
+    82                                          final:
+    83 000000A9 FF35[6A000000]                      push dword [descriptor_r]
+    84 000000AF FF15[00000000]                      call [fclose]
+    85 000000B5 83C404                              add esp, 4
+    86                                              
+    87 000000B8 FF35[6E000000]                      push dword [descriptor_w]
+    88 000000BE FF15[00000000]                      call [fclose]
+    89 000000C4 83C404                              add esp, 4
+    90                                              
+    91 000000C7 6A00                                push dword 0
+    92 000000C9 FF15[00000000]                      call [exit]
+    93                                          

@@ -1,0 +1,75 @@
+     1                                  ;19. Se dau in segmentul de date un nume de fisier si un text (poate contine orice tip de caracter). Sa se calculeze suma cifrelor din text. Sa se creeze un fisier cu numele dat si sa se scrie suma obtinuta in fisie
+     2                                  
+     3                                  bits 32
+     4                                  global start
+     5                                  extern exit,fprintf,fclose,fopen 
+     6                                  import exit msvcrt.dll
+     7                                  import fprintf msvcrt.dll
+     8                                  import fclose msvcrt.dll
+     9                                  import fopen msvcrt.dll
+    10                                  
+    11                                  segment date use32 class = date 
+    12 00000000 416E61206172652031-         text db "Ana are 1# mere, $2 pere si pru3ne.", 0
+    12 00000009 23206D6572652C2024-
+    12 00000012 322070657265207369-
+    12 0000001B 20707275336E652E00 
+    13 00000024 FFFFFFFF                    descriptor dd -1
+    14 00000028 00000000                    suma dd 0
+    15 0000002C 6F75747075742E7478-         nume_fisier db "output.txt", 0
+    15 00000035 7400               
+    16 00000037 7700                        mod_acces db "w", 0
+    17 00000039 53756D612065737465-         format db "Suma este: %d", 0
+    17 00000042 3A20256400         
+    18                                      
+    19                                  
+    20                                  segment code use32 class = code
+    21                                      start:
+    22 00000000 68[37000000]                    push dword mod_acces
+    23 00000005 68[2C000000]                    push dword nume_fisier
+    24 0000000A FF15[00000000]                  call [fopen]
+    25 00000010 83C408                          add esp, 4 * 2
+    26                                          
+    27 00000013 A3[24000000]                    mov [descriptor], eax
+    28                                          
+    29 00000018 83F800                          cmp eax, 0
+    30 0000001B 7443                            je final
+    31                                          
+    32 0000001D 31F6                            xor esi, esi
+    33                                          
+    34                                          bucla:
+    35 0000001F 8A9E[00000000]                      mov bl, [text + esi]
+    36                                              
+    37 00000025 80FB00                              cmp bl, 0
+    38 00000028 741A                                je afisare
+    39                                              
+    40 0000002A 80FB30                              cmp bl, '0'
+    41 0000002D 7C12                                jl mai_departe
+    42                                              
+    43 0000002F 80FB39                              cmp bl, '9'
+    44 00000032 7F0D                                jg mai_departe
+    45                                              
+    46 00000034 80EB30                              sub bl, '0'
+    47 00000037 88DA                                mov dl, bl
+    48 00000039 0015[28000000]                      add [suma], dl 
+    49 0000003F EB00                                jmp mai_departe
+    50                                              
+    51                                          mai_departe:
+    52 00000041 46                                  inc esi
+    53 00000042 EBDB                                jmp bucla
+    54                                          afisare:
+    55 00000044 FF35[28000000]                      push dword [suma]
+    56 0000004A 68[39000000]                        push dword format
+    57 0000004F FF35[24000000]                      push dword [descriptor]
+    58 00000055 FF15[00000000]                      call [fprintf]
+    59 0000005B 83C40C                              add esp, 4 * 3
+    60                                              
+    61 0000005E EB00                                jmp final
+    62                                          final:
+    63 00000060 FF35[24000000]                      push dword [descriptor]
+    64 00000066 FF15[00000000]                      call [fclose]
+    65 0000006C 83C404                              add esp, 4 * 1
+    66                                              
+    67 0000006F 6A00                                push dword 0
+    68 00000071 FF15[00000000]                      call [exit]
+    69                                          
+    70                                          

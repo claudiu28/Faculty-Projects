@@ -1,0 +1,3 @@
+Impare: 4 
+Pare: 6 
+Diferenta: 2 

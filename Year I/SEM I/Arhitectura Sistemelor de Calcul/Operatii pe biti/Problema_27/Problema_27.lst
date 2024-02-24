@@ -1,0 +1,55 @@
+     1                                  ; 27. Se da quadwordul A. Sa se obtina numarul intreg N reprezentat de bitii 35-37 ai lui A. Sa se obtina apoi in B dublucuvantul rezultat prin rotirea spre dreapta a dublucuvantului inferior al lui A cu N pozitii. 
+     2                                      ; bitii 0-3 ai lui C sunt bitii 8-11 ai lui B
+     3                                      ; bitii 4-7 ai lui C sunt bitii 16-19 ai lui B
+     4                                      
+     5                                      
+     6                                  bits 32
+     7                                  
+     8                                  global start
+     9                                  
+    10                                  extern exit
+    11                                  import exit msvcrt.dll
+    12                                  
+    13                                  segment data use32 class = data
+    14 00000000 00FFFFFFFFFFFF00            A dq 00__FF__FF__FF__FF__FF__FF__00h
+    15 00000008 <res 00000001>              N resb 1
+    16 00000009 <res 00000004>              B resd 1
+    17 0000000D <res 00000001>              C resb 1
+    18                                  segment code use32 class = code
+    19                                      start:
+    20 00000000 31DB                            xor ebx, ebx
+    21 00000002 31C9                            xor ecx, ecx
+    22                                          
+    23 00000004 31C0                            xor eax, eax
+    24                                          
+    25 00000006 031D[00000000]                  add ebx, [A]
+    26 0000000C 130D[04000000]                  adc ecx, [A + 4]
+    27                                        
+    28 00000012 C1E903                          shr ecx, 3
+    29 00000015 83E107                          and ecx, 0111b
+    30 00000018 880D[08000000]                  mov [N], cl 
+    31                                          
+    32                                          
+    33 0000001E D3CB                            ror ebx, cl
+    34 00000020 891D[09000000]                  mov [B], ebx
+    35                                          
+    36                                          
+    37 00000026 31D2                            xor edx, edx
+    38                                          
+    39 00000028 89D8                            mov eax, ebx
+    40 0000002A C1E808                          shr eax, 8        
+    41 0000002D 83E00F                          and eax, 0000__1111b    
+    42 00000030 09C2                            or edx, eax       
+    43                                          
+    44                                          
+    45 00000032 89D8                            mov eax, ebx
+    46 00000034 C1E810                          shr eax, 16       
+    47 00000037 83E00F                          and eax, 0000__1111b    
+    48 0000003A C1E004                          shl eax, 4        
+    49 0000003D 09C2                            or edx, eax       
+    50                                          
+    51                                          
+    52 0000003F 8815[0D000000]                  mov [C], dl
+    53                                          
+    54 00000045 6A00                            push dword 0
+    55 00000047 E8(00000000)                    call exit

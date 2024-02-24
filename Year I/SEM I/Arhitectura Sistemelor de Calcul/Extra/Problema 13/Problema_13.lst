@@ -1,0 +1,86 @@
+     1                                  bits 32
+     2                                  
+     3                                  global start
+     4                                  
+     5                                  extern exit, scanf, printf
+     6                                  
+     7                                  import exit msvcrt.dll
+     8                                  import scanf msvcrt.dll
+     9                                  import printf msvcrt.dll
+    10                                  
+    11                                  segment data use32 class = data
+    12 00000000 <res 00000100>              cuvant resb 256  ; Allocate 256 bytes for the string
+    13 00000100 <res 00000004>              numar resd 1     ; Allocate 4 bytes for the integer
+    14 00000104 257300                      format db "%s", 0
+    15 00000107 256400                      format_intreg db "%d", 0
+    16 0000010A <res 00000100>              cuvant_nou resb 256
+    17                                  segment code use32 class = code 
+    18                                      start:
+    19 00000000 68[00000000]                    push dword cuvant
+    20 00000005 68[04010000]                    push dword format
+    21 0000000A FF15[00000000]                  call [scanf]
+    22 00000010 83C408                          add esp, 8
+    23                                  
+    24 00000013 68[00010000]                    push dword numar
+    25 00000018 68[07010000]                    push dword format_intreg
+    26 0000001D FF15[00000000]                  call [scanf]
+    27 00000023 83C408                          add esp, 8
+    28                                  
+    29 00000026 31D2                            xor edx, edx
+    30 00000028 A1[00010000]                    mov eax, [numar]
+    31                                          
+    32 0000002D F73502000000                    div dword[2]
+    33 00000033 83FA00                          cmp edx, 0
+    34 00000036 7421                            je par
+    35                                          
+    36 00000038 81F6[00000000]                  xor esi, cuvant
+    37 0000003E BF[0A010000]                    mov edi, cuvant_nou
+    38                                          bucla_impar:
+    39 00000043 AC                                  lodsb
+    40 00000044 88C2                                mov dl, al
+    41 00000046 3C20                                cmp al, ' '
+    42                                              je afisare
+    42          ******************       error: symbol `afisare' undefined
+    43                                              
+    44 00000048 30E4                                xor ah, ah
+    45                                              
+    46 0000004A F63514000000                        div byte[20]
+    47                                  
+    48 00000050 00E2                                add dl, ah
+    49 00000052 88D0                                mov al, dl
+    50                                              
+    51 00000054 AA                                  stosb
+    52 00000055 EBEC                                jmp bucla_impar
+    53                                          
+    54                                          par:
+    55 00000057 81F6[00000000]                      xor esi, cuvant
+    56 0000005D BF[0A010000]                        mov edi, cuvant_nou
+    57                                              numar_par:
+    58 00000062 AC                                      lodsb
+    59 00000063 88C2                                    mov dl, al
+    60 00000065 3C61                                    cmp al, 'a'
+    61 00000067 74F9                                    je numar_par
+    62 00000069 3C65                                    cmp al, 'e'
+    63 0000006B 74F5                                    je numar_par
+    64 0000006D 3C69                                    cmp al, 'i'
+    65 0000006F 74F1                                    je numar_par
+    66 00000071 3C6F                                    cmp al, 'o'
+    67 00000073 74ED                                    je numar_par
+    68 00000075 3C75                                    cmp al, 'u'
+    69 00000077 74E9                                    je numar_par
+    70                                                  
+    71                                                  add 
+    71          ******************       error: invalid combination of opcode and operands
+    72                                          
+    73 00000079 68[00000000]                    push dword cuvant
+    74 0000007E 68[04010000]                    push dword format
+    75 00000083 FF15[00000000]                  call [printf]
+    76 00000089 83C408                          add esp, 8
+    77                                  
+    78 0000008C FF35[00010000]                  push dword [numar]
+    79 00000092 68[07010000]                    push dword format_intreg
+    80 00000097 FF15[00000000]                  call [printf]
+    81 0000009D 83C408                          add esp, 8
+    82                                  
+    83 000000A0 6A00                            push dword 0
+    84 000000A2 FF15[00000000]                  call [exit]

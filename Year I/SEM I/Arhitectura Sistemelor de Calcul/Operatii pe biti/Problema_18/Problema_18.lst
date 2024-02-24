@@ -1,0 +1,45 @@
+     1                                  ; 18. Se da un cuvant A. Sa se obtina dublucuvantul B astfel:
+     2                                          ; bitii 0-3 ai lui B sunt 0;
+     3                                          ; bitii 4-7 ai lui B sunt bitii 8-11 ai lui A
+     4                                          ; bitii 8-9 si 10-11 ai lui B sunt bitii 0-1 inversati ca valoare ai lui A (deci de 2 ori) ;
+     5                                          ; bitii 12-15 ai lui B sunt biti de 1
+     6                                          ; bitii 16-31 ai lui B sunt identici cu bitii 0-15 ai lui B.
+     7                                          
+     8                                  bits 32
+     9                                  
+    10                                  global start
+    11                                  
+    12                                  extern exit
+    13                                  import exit msvcrt.dll
+    14                                  
+    15                                  segment data use32 class = data
+    16 00000000 00FF                        A dw 0FF_00h ; 1111__1111__0000__0000
+    17 00000002 <res 00000004>              B resd 1
+    18                                  segment code use32 class = code
+    19                                      start:
+    20 00000000 31DB                            xor ebx, ebx
+    21                                          
+    22 00000002 66A1[00000000]                  mov ax, [A]
+    23                                          
+    24 00000008 6625000F                        and ax, 0000__1111__0000__0000b
+    25 0000000C 66C1C00C                        rol ax, 12
+    26                                  
+    27 00000010 6609C3                          or bx, ax
+    28                                      
+    29 00000013 66A1[00000000]                  mov ax, [A]
+    30 00000019 F6D0                            not al
+    31 0000001B 6683E00F                        and ax, 0000__0000__0000__1111b
+    32 0000001F 66C1C808                        ror ax, 8
+    33                                          
+    34 00000023 6609C3                          or bx, ax
+    35                                          
+    36 00000026 66B800F0                        mov ax, 1111__0000__0000__0000b
+    37 0000002A 6609C3                          or bx, ax
+    38                                          
+    39 0000002D 6689DA                          mov dx, bx
+    40 00000030 668B1D[00000000]                mov bx, [A]
+    41 00000037 C1CB10                          ror ebx, 16
+    42 0000003A 6689D3                          mov bx, dx 
+    43                                      
+    44 0000003D 6A00                            push dword 0
+    45 0000003F E8(00000000)                    call exit 

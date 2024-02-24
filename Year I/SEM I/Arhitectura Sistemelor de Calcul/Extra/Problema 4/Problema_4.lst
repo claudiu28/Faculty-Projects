@@ -1,0 +1,67 @@
+     1                                  bits 32
+     2                                  
+     3                                  global start
+     4                                  
+     5                                  extern scanf, printf, exit, gets
+     6                                  
+     7                                  import gets msvcrt.dll
+     8                                  import scanf msvcrt.dll
+     9                                  import printf msvcrt.dll
+    10                                  import exit msvcrt.dll
+    11                                  
+    12                                  segment data use32 class = data
+    13 00000000 00<rept>                    propozitie times 101 db 0
+    14 00000065 2000                        spatiu db " ", 0
+    15 00000067 256400                      format_int db "%d", 0
+    16 0000006A 00000000                    lungime_cuvant dd 0
+    17                                  segment code use32 class = code
+    18                                      start:
+    19                                         
+    20 00000000 8D05[00000000]                  lea eax, [propozitie]
+    21 00000006 50                              push dword eax
+    22 00000007 FF15[00000000]                  call [gets]
+    23 0000000D 83C404                          add esp, 4 * 1
+    24                                  
+    25 00000010 31F6                            xor esi, esi
+    26                                          bucla:
+    27 00000012 8A9E[00000000]                      mov bl, [propozitie + esi]
+    28                                              
+    29 00000018 80FB00                              cmp bl, 0
+    30 0000001B 7412                                je numar_caractere
+    31                                              
+    32 0000001D 80FB20                              cmp bl, ' '
+    33 00000020 740D                                je numar_caractere
+    34                                              
+    35 00000022 BA01000000                          mov edx, 1
+    36 00000027 0115[6A000000]                      add [lungime_cuvant], edx
+    37 0000002D EB32                                jmp flow
+    38                                              
+    39                                          numar_caractere:
+    40 0000002F 8B15[6A000000]                      mov edx, [lungime_cuvant]
+    41 00000035 EB00                                jmp afisare
+    42                                          
+    43                                        
+    44                                          afisare:
+    45 00000037 52                                  push dword edx
+    46 00000038 68[67000000]                        push dword format_int
+    47 0000003D FF15[00000000]                      call [printf]
+    48 00000043 83C408                              add esp, 4 * 2
+    49                                              
+    50 00000046 68[65000000]                        push dword spatiu
+    51 0000004B FF15[00000000]                      call [printf]
+    52 00000051 83C404                              add esp, 4 * 1
+    53                                              
+    54 00000054 BA00000000                          mov edx, 0
+    55 00000059 8915[6A000000]                      mov [lungime_cuvant], edx
+    56 0000005F EB00                                jmp flow
+    57                                              
+    58                                          flow:
+    59 00000061 80FB00                              cmp bl, 0
+    60 00000064 7403                                je final
+    61                                              
+    62 00000066 46                                  inc esi
+    63 00000067 EBA9                                jmp bucla
+    64                                          
+    65                                          final:
+    66 00000069 6A00                                push dword 0
+    67 0000006B FF15[00000000]                      call [exit]

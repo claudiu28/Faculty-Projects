@@ -1,0 +1,49 @@
+     1                                  ; 1. Se dau cuvintele A si B. Sa se obtina dublucuvantul C:
+     2                                  ;   bitii 0-4 ai lui C coincid cu bitii 11-15 ai lui A
+     3                                  ;   bitii 5-11 ai lui C au valoarea 1
+     4                                  ;   bitii 12-15 ai lui C coincid cu bitii 8-11 ai lui B
+     5                                  ;   bitii 16-31 ai lui C coincid cu bitii lui A
+     6                                  
+     7                                  bits 32
+     8                                  
+     9                                  global start
+    10                                  
+    11                                  extern exit
+    12                                  import exit msvcrt.dll
+    13                                  
+    14                                  
+    15                                  segment data use32 class = data
+    16 00000000 00FFFF00                    A dd 00__FF__FF__00h    ; 0000__0000__1111__1111__1111__1111__0000__0000    
+    17 00000004 FFFF00FF                    B dd 0FF__00__FF__FFh   ; 1111__1111__0000__0000__1111__1111__1111__1111
+    18 00000008 <res 00000004>              C resd 1                ; 0000__0000__1111__1111__1111__1111__1111__1111                                        
+    19                                  
+    20                                  segment code use32 class = code
+    21                                  
+    22                                      start:
+    23 00000000 31DB                            xor ebx, ebx
+    24                                          
+    25 00000002 A1[00000000]                    mov eax, [A]
+    26                                          
+    27 00000007 2500F80000                      and eax, 0000__0000__0000__0000__1111__1000__0000__0000b
+    28 0000000C C1C80B                          ror eax, 11
+    29                                          
+    30 0000000F 09C3                            or ebx, eax
+    31                                          
+    32 00000011 B8E00F0000                      mov eax, 0000__0000__0000__0000__0000__1111__1110__0000b
+    33 00000016 09C3                            or ebx, eax
+    34                                          
+    35 00000018 A1[04000000]                    mov eax, [B]
+    36 0000001D 25000F0000                      and eax, 0000__0000__0000__0000__0000__1111__0000__0000b
+    37 00000022 C1C004                          rol eax, 4
+    38                                          
+    39 00000025 09C3                            or ebx, eax
+    40                                          
+    41 00000027 A1[00000000]                    mov eax, [A]        
+    42 0000002C 250000FFFF                      and eax, 1111__1111__1111__1111__0000__0000__0000__0000b
+    43                                          
+    44 00000031 09C3                            or ebx, eax
+    45                                          
+    46 00000033 891D[08000000]                  mov [C], ebx
+    47                                          
+    48 00000039 6A00                            push dword 0
+    49 0000003B E8(00000000)                    call exit

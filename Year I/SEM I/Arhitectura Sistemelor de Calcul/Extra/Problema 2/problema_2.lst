@@ -1,0 +1,129 @@
+     1                                  bits 32
+     2                                  
+     3                                  global start
+     4                                  
+     5                                  extern exit, scanf, fprintf, fopen, fclose, printf
+     6                                  
+     7                                  import exit msvcrt.dll
+     8                                  import scanf msvcrt.dll
+     9                                  import fprintf msvcrt.dll
+    10                                  import printf msvcrt.dll
+    11                                  import fopen msvcrt.dll
+    12                                  import fclose msvcrt.dll
+    13                                  
+    14                                  segment data use32 class = data
+    15 00000000 00000000                    n dd 0
+    16 00000004 00000000<rept>              sir times 101 dd 0
+    17 00000198 FFFFFFFF                    descriptor dd -1
+    18 0000019C 256400                      format db "%d", 0
+    19 0000019F 4469666572656E7461-         format_text_dif db "Diferenta: %x ", 10, 0
+    19 000001A8 3A202578200A00     
+    20 000001AF 506172653A20257820-         format_text_pare db "Pare: %x ", 10, 0
+    20 000001B8 0A00               
+    21 000001BA 496D706172653A2025-         format_text_imp db "Impare: %x ", 10, 0
+    21 000001C3 78200A00           
+    22 000001C7 6F75747075742E7478-         nume_fisier db "output.txt", 0
+    22 000001D0 7400               
+    23 000001D2 7700                        mod_access db "w", 0
+    24 000001D4 00000000                    pare dd 0
+    25 000001D8 00000000                    impare dd 0
+    26 000001DC 00000000                    diferenta dd 0
+    27                                      
+    28                                  segment code use32 class = code
+    29                                      start:
+    30 00000000 68[D2010000]                    push dword mod_access
+    31 00000005 68[C7010000]                    push dword nume_fisier
+    32 0000000A FF15[00000000]                  call [fopen]
+    33 00000010 83C408                          add esp, 4 * 2
+    34                                          
+    35 00000013 A3[98010000]                    mov [descriptor], eax
+    36 00000018 83F800                          cmp eax, 0
+    37 0000001B 0F84D4000000                    je final
+    38                                  
+    39 00000021 68[00000000]                    push dword n
+    40 00000026 68[9C010000]                    push dword format
+    41 0000002B FF15[00000000]                  call [scanf]
+    42 00000031 83C408                          add esp, 4 * 2
+    43                                          
+    44 00000034 8B1D[00000000]                  mov ebx, [n]
+    45 0000003A 31F6                            xor esi, esi
+    46                                  
+    47                                          bucla:
+    48 0000003C 83FB00                              cmp ebx, 0
+    49 0000003F 741A                                je rezolvare
+    50                                  
+    51 00000041 8D04B5[04000000]                    lea eax, [sir + esi * 4]
+    52 00000048 50                                  push eax
+    53 00000049 68[9C010000]                        push format
+    54 0000004E FF15[00000000]                      call [scanf]
+    55 00000054 83C408                              add esp, 4 * 2
+    56                                  
+    57 00000057 46                                  inc esi
+    58 00000058 4B                                  dec ebx 
+    59 00000059 EBE1                                jmp bucla
+    60                                  
+    61                                              
+    62                                          rezolvare:
+    63 0000005B 31F6                                xor esi, esi
+    64 0000005D 31FF                                xor edi, edi
+    65 0000005F 8B1D[00000000]                      mov ebx, [n]
+    66                                              
+    67                                              loop_rezolvare:
+    68 00000065 83FB00                                  cmp ebx, 0
+    69 00000068 742B                                    je afisare
+    70                                              
+    71 0000006A 31D2                                    xor edx, edx
+    72 0000006C 8B04B5[04000000]                        mov eax, [sir + esi * 4]
+    73 00000073 89C7                                    mov edi, eax
+    74                                                  
+    75 00000075 B902000000                              mov ecx, 2
+    76 0000007A F7F1                                    div ecx
+    77                                                  
+    78 0000007C 83FA00                                  cmp edx, 0
+    79 0000007F 7408                                    je suma_pare
+    80                                                               
+    81 00000081 013D[D8010000]                          add [impare], edi
+    82 00000087 EB08                                    jmp flow
+    83                                                  
+    84                                              suma_pare:
+    85 00000089 013D[D4010000]                          add [pare], edi
+    86 0000008F EB00                                    jmp flow
+    87                                              
+    88                                              flow:
+    89 00000091 4B                                      dec ebx
+    90 00000092 46                                      inc esi
+    91 00000093 EBD0                                    jmp loop_rezolvare
+    92                                              
+    93                                          afisare:
+    94 00000095 A1[D4010000]                        mov eax, [pare]
+    95 0000009A 2B05[D8010000]                      sub eax, [impare]
+    96 000000A0 A3[DC010000]                        mov [diferenta], eax
+    97                                              
+    98                                              
+    99 000000A5 FF35[D8010000]                      push dword [impare]
+   100                                           
+   101 000000AB 68[BA010000]                        push dword format_text_imp
+   102 000000B0 FF35[98010000]                      push dword [descriptor]
+   103 000000B6 FF15[00000000]                      call [fprintf]
+   104 000000BC 83C40C                              add esp, 4 * 3
+   105                                              
+   106 000000BF FF35[D4010000]                      push dword [pare]
+   107 000000C5 68[AF010000]                        push dword format_text_pare
+   108 000000CA FF35[98010000]                      push dword [descriptor]
+   109 000000D0 FF15[00000000]                      call [fprintf]
+   110 000000D6 83C40C                              add esp, 4 * 3
+   111                                              
+   112 000000D9 FF35[DC010000]                      push dword [diferenta]
+   113 000000DF 68[9F010000]                        push dword format_text_dif
+   114 000000E4 FF35[98010000]                      push dword [descriptor]
+   115 000000EA FF15[00000000]                      call [fprintf]
+   116 000000F0 83C40C                              add esp, 4 * 3
+   117                                              
+   118 000000F3 EB00                                jmp final
+   119                                          final:
+   120 000000F5 FF35[98010000]                      push dword [descriptor]
+   121 000000FB FF15[00000000]                      call [fclose]
+   122 00000101 83C404                              add esp, 4
+   123                                              
+   124 00000104 6A00                                push dword 0
+   125 00000106 FF15[00000000]                      call [exit]

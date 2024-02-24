@@ -1,0 +1,100 @@
+     1                                  bits 32
+     2                                  
+     3                                  global start
+     4                                  
+     5                                  extern exit, fclose, fopen, fread, printf
+     6                                  import exit msvcrt.dll
+     7                                  import fread msvcrt.dll
+     8                                  import printf msvcrt.dll
+     9                                  import fopen msvcrt.dll
+    10                                  import fclose msvcrt.dll
+    11                                  
+    12                                  segment data use32 class=data
+    13 00000000 FFFFFFFF                    descriptor dd -1
+    14 00000004 696E7075742E747874-         nume db "input.txt", 0
+    14 0000000D 00                 
+    15 0000000E 7200                        access db "r", 0
+    16 00000010 2000                        spatiu db " ", 0
+    17 00000012 257300                      format db "%s", 0
+    18                                      lungime equ 200
+    19 00000015 00<rept>                    text times (lungime + 1) db 0
+    20 000000DE 00<rept>                    cuvant times (lungime + 1) db 0
+    21                                  
+    22                                  segment code use32 class=code
+    23                                  start:
+    24 00000000 68[0E000000]                push dword access
+    25 00000005 68[04000000]                push dword nume
+    26 0000000A FF15[00000000]              call [fopen]
+    27 00000010 83C408                      add esp, 8
+    28 00000013 A3[00000000]                mov [descriptor], eax
+    29 00000018 83F800                      cmp eax, 0
+    30 0000001B 747F                        je final
+    31                                  
+    32                                      ; Main file reading loop
+    33                                      bucla_citire:
+    34 0000001D FF35[00000000]                  push dword [descriptor]
+    35 00000023 68C8000000                      push dword lungime
+    36 00000028 6A01                            push dword 1
+    37 0000002A 68[15000000]                    push dword text
+    38 0000002F FF15[00000000]                  call [fread]
+    39 00000035 83C410                          add esp, 16
+    40                                  
+    41 00000038 89C1                            mov ecx, eax
+    42 0000003A 85C9                            test ecx, ecx
+    43 0000003C 745E                            jz final  ; Exit if no more data
+    44                                  
+    45 0000003E 31F6                            xor esi, esi  ; Reset character position
+    46 00000040 31FF                            xor edi, edi  ; Reset word length
+    47                                  
+    48                                      bucla:
+    49 00000042 8A86[15000000]                  mov al, [text + esi]
+    50 00000048 3C00                            cmp al, 0
+    51 0000004A 7450                            je final  ; End of text
+    52                                  
+    53 0000004C 3C20                            cmp al, ' '
+    54 0000004E 740A                            je verifica_cuvant  ; End of word
+    55                                  
+    56                                          ; Copy character to cuvant
+    57 00000050 8887[DE000000]                  mov [cuvant + edi], al
+    58 00000056 47                              inc edi
+    59 00000057 46                              inc esi
+    60 00000058 EBE8                            jmp bucla
+    61                                  
+    62                                      verifica_cuvant:
+    63 0000005A F7C701000000                    test edi, 1
+    64 00000060 7435                            jz reset_for_next_word  ; Skip if word length is even
+    65                                  
+    66                                          ; Print first half of the word
+    67 00000062 57                              push edi
+    68 00000063 D1EF                            shr edi, 1
+    69 00000065 57                              push edi
+    70 00000066 68[DE000000]                    push cuvant
+    71 0000006B FF15[00000000]                  call [printf]
+    72 00000071 83C408                          add esp, 8
+    73                                  
+    74                                          ; Print a space
+    75 00000074 68[10000000]                    push dword spatiu
+    76 00000079 FF15[00000000]                  call [printf]
+    77 0000007F 83C404                          add esp, 4
+    78                                  
+    79                                          ; Print second half of the word
+    80 00000082 5F                              pop edi
+    81 00000083 89FE                            mov esi, edi
+    82 00000085 D1EE                            shr esi, 1
+    83 00000087 81C6[DE000000]                  add esi, cuvant
+    84 0000008D 56                              push esi
+    85 0000008E FF15[00000000]                  call [printf]
+    86 00000094 83C404                          add esp, 4
+    87                                  
+    88                                      reset_for_next_word:
+    89 00000097 31FF                            xor edi, edi  ; Reset word length
+    90 00000099 46                              inc esi       ; Move to next character
+    91 0000009A EBA6                            jmp bucla
+    92                                  
+    93                                  final:
+    94 0000009C FF35[00000000]              push dword [descriptor]
+    95 000000A2 FF15[00000000]              call [fclose]
+    96 000000A8 83C404                      add esp, 4
+    97                                  
+    98 000000AB 6A00                        push 0
+    99 000000AD FF15[00000000]              call [exit]

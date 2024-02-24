@@ -1,0 +1,55 @@
+     1                                  ; 23. Se da octetul A si cuvantul B. Sa se formeze dublucuvantul C:
+     2                                          ; bitii 24-31 ai lui C sunt bitii lui A
+     3                                          ; bitii 16-23 ai lui C sunt inversul bitilor din octetul cel mai putin semnificativ al lui B
+     4                                          ; bitii 10-15 ai lui C sunt 1
+     5                                          ; bitii 2-9 ai lui C sunt bitii din octetul cel mai semnificativ al lui B
+     6                                          ; bitii 0-1 se completeaza cu valoarea bitului de semn al lui A
+     7                                          
+     8                                  bits 32
+     9                                  
+    10                                  global start
+    11                                  
+    12                                  extern exit
+    13                                  import exit msvcrt.dll
+    14                                  
+    15                                  segment data use32 class = data
+    16 00000000 FF                          a db 0FFh
+    17 00000001 F0F0                        b dw 0F0F0h ; 1111__0000__1111__0000
+    18 00000003 <res 00000004>              c resd 1 ; 1111__1111__0000__1111__1111__1111__1100__0011
+    19                                  segment code use32 class = code   
+    20                                      start:
+    21                                          
+    22 00000000 31DB                            xor ebx, ebx
+    23                                          
+    24 00000002 A0[00000000]                    mov al, [a]
+    25 00000007 2403                            and al, 0011b
+    26 00000009 08C3                            or bl, al
+    27                                          
+    28 0000000B 66A1[01000000]                  mov ax, [b]
+    29                                          
+    30 00000011 662500FF                        and ax, 1111__1111__0000__0000b
+    31 00000015 66C1C00A                        rol ax, 10
+    32 00000019 6609C3                          or bx, ax
+    33                                          
+    34 0000001C 66B800FC                        mov ax, 1111__1100__0000__0000b
+    35 00000020 6609C3                          or bx, ax
+    36                                          
+    37 00000023 31C0                            xor eax, eax
+    38 00000025 A0[01000000]                    mov al, byte[b]
+    39 0000002A F6D0                            not al
+    40 0000002C 24FF                            and al, 1111__1111b
+    41 0000002E C1C808                          ror eax, 8
+    42 00000031 09C3                            or ebx, eax
+    43                                          
+    44 00000033 31C0                            xor eax, eax
+    45 00000035 A0[00000000]                    mov al, [a]
+    46 0000003A 24FF                            and al, 1111__1111b
+    47 0000003C C1C808                          ror eax, 8
+    48 0000003F 09C3                            or ebx, eax
+    49 00000041 6A00                            push dword 0
+    50 00000043 E8(00000000)                    call exit
+    51                                           
+    52                                          
+    53                                         
+    54                                          
+    55                                             

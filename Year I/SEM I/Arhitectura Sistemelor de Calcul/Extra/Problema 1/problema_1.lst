@@ -1,0 +1,130 @@
+     1                                  bits 32
+     2                                  global start        
+     3                                  
+     4                                  extern exit, fopen, fclose, printf, fscanf               
+     5                                  import exit msvcrt.dll
+     6                                  import fscanf msvcrt.dll
+     7                                  import fclose msvcrt.dll
+     8                                  import fopen msvcrt.dll
+     9                                  import printf msvcrt.dll    
+    10                                  
+    11                                  segment data use32 class=data
+    12 00000000 696E7075742E747874-        nume db "input.txt", 0
+    12 00000009 00                 
+    13 0000000A FFFFFFFF                   descriptor dd -1
+    14 0000000E 7200                       access db "r", 0
+    15 00000010 <res 00000001>             caractere resb 1
+    16 00000011 256300                     format db "%c", 0
+    17 00000014 64000000                   minim dd 100
+    18 00000018 25642000                   format_intreg db "%d ", 0
+    19                                  segment code use32 class=code
+    20                                      start:
+    21 00000000 68[0E000000]                    push dword access
+    22 00000005 68[00000000]                    push dword nume
+    23 0000000A FF15[00000000]                  call [fopen]
+    24 00000010 83C408                          add esp, 4 * 2
+    25                                          
+    26 00000013 A3[0A000000]                    mov [descriptor], eax
+    27                                          
+    28 00000018 83F800                          cmp eax, 0
+    29 0000001B 0F84E7000000                    je final
+    30                                          
+    31                                          bucla:
+    32                                              
+    33 00000021 68[10000000]                        push dword caractere
+    34 00000026 68[11000000]                        push dword format
+    35 0000002B FF35[0A000000]                      push dword [descriptor]
+    36 00000031 FF15[00000000]                      call [fscanf]
+    37 00000037 83C40C                              add esp, 4 * 3
+    38                                              
+    39 0000003A 83F8FF                              cmp eax, -1
+    40 0000003D 7471                                je ultimul_element
+    41                                              
+    42 0000003F 8A1D[10000000]                      mov bl, [caractere]
+    43                                              
+    44 00000045 80FB20                              cmp bl, ' '
+    45 00000048 7443                                je afisare_minim_curent
+    46                                              
+    47 0000004A 80FB30                              cmp bl, '0'
+    48 0000004D 7CD2                                jl bucla
+    49                                              
+    50 0000004F 80FB39                              cmp bl, '9'
+    51 00000052 7F16                                jg litera
+    52                                              
+    53 00000054 80EB30                              sub bl, '0'
+    54                                              
+    55 00000057 0FB6DB                              movzx ebx, bl
+    56                                              
+    57 0000005A 3B1D[14000000]                      cmp ebx, [minim]
+    58 00000060 7DBF                                jge bucla
+    59                                              
+    60 00000062 891D[14000000]                      mov [minim], ebx
+    61 00000068 EBB7                                jmp bucla
+    62                                              
+    63                                      litera:
+    64 0000006A 80FB41                          cmp bl, 'A'
+    65 0000006D 7CB2                            jl bucla
+    66                                          
+    67 0000006F 80FB46                          cmp bl, 'F'
+    68 00000072 7FAD                            jg bucla
+    69                                          
+    70 00000074 80EB41                          sub bl, 'A'
+    71 00000077 80C30A                          add bl, 10
+    72                                          
+    73 0000007A 0FB6DB                          movzx ebx, bl
+    74                                              
+    75 0000007D 3B1D[14000000]                  cmp ebx, [minim]
+    76 00000083 7D9C                            jge bucla
+    77                                              
+    78 00000085 891D[14000000]                  mov [minim], ebx
+    79 0000008B EB94                            jmp bucla   
+    80                                          
+    81                                      
+    82                                      afisare_minim_curent:
+    83 0000008D FF35[14000000]                  push dword [minim]
+    84 00000093 68[18000000]                    push dword format_intreg
+    85 00000098 FF15[00000000]                  call [printf]
+    86 0000009E 83C408                          add esp, 4 * 2
+    87                                          
+    88 000000A1 C705[14000000]6400-             mov dword[minim], 100
+    88 000000A9 0000               
+    89 000000AB E971FFFFFF                      jmp bucla
+    90                                      ultimul_element:
+    91 000000B0 0FB61D[10000000]                movzx ebx, byte[caractere]
+    92                                          
+    93 000000B7 83FB41                          cmp ebx, 'A'
+    94 000000BA 7C1B                            jl Este_cifra
+    95                                          
+    96 000000BC 83FB46                          cmp ebx, 'F'
+    97 000000BF 7F33                            jg print_ultim_minim
+    98                                          
+    99 000000C1 83EB41                          sub ebx, 'A'
+   100 000000C4 83C30A                          add ebx, 10
+   101                                          
+   102 000000C7 3B1D[14000000]                  cmp ebx, [minim]
+   103 000000CD 7D25                            jge print_ultim_minim
+   104                                          
+   105 000000CF 891D[14000000]                  mov [minim], ebx
+   106 000000D5 EB1D                            jmp print_ultim_minim
+   107                                      Este_cifra:
+   108 000000D7 83FB30                          cmp ebx, '0'
+   109 000000DA 7C18                            jl print_ultim_minim
+   110 000000DC 83FB39                          cmp ebx, '9'
+   111 000000DF 7F13                            jg print_ultim_minim
+   112                                          
+   113 000000E1 83EB30                          sub ebx, '0'
+   114                                          
+   115 000000E4 3B1D[14000000]                  cmp ebx, [minim]
+   116 000000EA 7D08                            jge print_ultim_minim
+   117 000000EC 891D[14000000]                  mov [minim], ebx
+   118 000000F2 EB00                            jmp print_ultim_minim
+   119                                          
+   120                                      print_ultim_minim:    
+   121 000000F4 FF35[14000000]                  push dword [minim]
+   122 000000FA 68[18000000]                    push dword format_intreg
+   123 000000FF FF15[00000000]                  call [printf]
+   124 00000105 83C408                          add esp, 4 * 2
+   125                                          
+   126                                      final:
+   127 00000108 6A00                            push dword 0
+   128 0000010A FF15[00000000]                  call [exit]
